@@ -1,0 +1,7 @@
+parameters:
+  level: 8
+  reportUnmatchedIgnoredErrors: false
+  paths:
+    - ./cloudflare-utils.php
+    - ./classes
+  ignoreErrors:
