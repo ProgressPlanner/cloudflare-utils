@@ -33,7 +33,7 @@ class Base {
 		\add_action( 'send_no_cache_headers', [ $this, 'private_cache_headers' ] );
 
 		// Cache redirects.
-		add_filter( 'x_redirect_by', [ $this, 'add_cache_control_to_redirects' ], 11, 3 );
+		\add_filter( 'x_redirect_by', [ $this, 'add_cache_control_to_redirects' ], 11, 3 );
 
 		// Cache clear on publish & update.
 		\add_action( 'post_updated', [ $this, 'clear_cloudflare_cache_on_publish' ] );
