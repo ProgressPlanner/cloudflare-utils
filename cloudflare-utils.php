@@ -14,6 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'PP_CF_UTILS_DIR', __DIR__ );
+define( 'PP_CF_UTILS_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
+
 /**
  * Load the plugin.
  */
