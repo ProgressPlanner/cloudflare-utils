@@ -107,6 +107,7 @@
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="PP_Cloudflare_Utils"/>
+				<element value="PP_CF_UTILS"/>
 			</property>
 		</properties>
 	</rule>
