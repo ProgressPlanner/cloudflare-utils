@@ -4,4 +4,6 @@ parameters:
   paths:
     - ./cloudflare-utils.php
     - ./classes
+	bootstrapFiles:
+    - ./cloudflare-utils.php
   ignoreErrors:

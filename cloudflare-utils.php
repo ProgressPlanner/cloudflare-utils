@@ -20,5 +20,5 @@ define( 'PP_CF_UTILS_URL', untrailingslashit( plugin_dir_url( __FILE__ ) ) );
 /**
  * Load the plugin.
  */
-require_once __DIR__ . '/classes/class-base.php';
+require_once PP_CF_UTILS_DIR . '/classes/class-base.php';
 new PP_Cloudflare_Utils\Base();
