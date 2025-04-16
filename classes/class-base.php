@@ -445,7 +445,7 @@ class Base {
 					'id'     => 'set_cloudflare_zone_id',
 					'title'  => \esc_html__( 'Set Cloudflare zone settings', 'pp-cf-utils' ),
 					'parent' => 'cloudflare',
-					'href'   => \admin_url( 'options-general.php?page=pp-cf-utils' ),
+					'href'   => \admin_url( 'options-general.php?page=pp-cloudflare-utils' ),
 				]
 			);
 			return;
@@ -496,7 +496,7 @@ class Base {
 				height: 20px;
 				padding: 4px;
 				display: inline-block;
-				background-image: url(' . \esc_url( \plugin_dir_url( __FILE__ ) . 'cloudflare_icon.svg' ) . ') !important;
+				background-image: url(' . \esc_url( PP_CF_UTILS_URL . '/assets/images/cloudflare_icon.svg' ) . ') !important;
 				background-size: contain;
 			}'
 		);
@@ -552,11 +552,20 @@ class Base {
 		\check_ajax_referer( 'clear_cloudflare_cache_nonce', 'nonce' );
 
 		if ( isset( $_POST['url'] ) && ! empty( $_POST['url'] ) ) {
-			$this->clear_cloudflare_cache( \sanitize_text_field( \wp_unslash( $_POST['url'] ) ) );
+			$result = $this->clear_cloudflare_cache( \sanitize_text_field( \wp_unslash( $_POST['url'] ) ) );
 		} else {
-			$this->clear_cloudflare_cache();
+			$result = $this->clear_cloudflare_cache();
 		}
-		\wp_send_json_success( [ 'message' => \esc_html__( 'Cloudflare cache cleared successfully.', 'pp-cf-utils' ) ] );
+
+		// $result is:
+		// $wp_error->get_message() if request failed or
+		// response code if request was successfuly made.
+
+		if ( $result === 200 ) {
+			\wp_send_json_success( [ 'message' => \esc_html__( 'Cloudflare cache cleared successfully.', 'pp-cf-utils' ) ] );
+		} else {
+			\wp_send_json_error( [ 'message' => \esc_html__( 'Cloudflare cache clear failed, check error log for more details.', 'pp-cf-utils' ) ] );
+		}
 	}
 
 	/**
