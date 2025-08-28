@@ -464,7 +464,7 @@ class Base {
 		);
 
 		if ( $this->is_singular_or_front_page() ) {
-			$permalink = \is_front_page() || \is_home() ? \get_home_url() : \get_permalink();
+			$permalink = (string) ( \is_front_page() || \is_home() ? \get_home_url() : \get_permalink() );
 
 			$wp_admin_bar->add_node(
 				[
