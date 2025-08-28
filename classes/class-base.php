@@ -462,7 +462,10 @@ class Base {
 				],
 			]
 		);
-		if ( \is_singular() ) {
+
+		if ( $this->is_singular_or_front_page() ) {
+			$permalink = \is_front_page() || \is_home() ? \get_home_url() : \get_permalink();
+
 			$wp_admin_bar->add_node(
 				[
 					'id'     => 'clear_cloudflare_cache_url',
@@ -470,13 +473,23 @@ class Base {
 					'parent' => 'cloudflare',
 					'href'   => '#',
 					'meta'   => [
-						'onclick' => 'clearCloudflareCache("' . \get_permalink() . '"); return false;',
+						'onclick' => 'clearCloudflareCache("' . esc_attr( $permalink ) . '"); return false;',
 					],
 				]
 			);
 		}
 
 		$this->add_toolbar_button_script();
+	}
+
+	/**
+	 * Checks if the current page is a singular page, front page, or home page and not on a paged page.
+	 *
+	 * @return bool True if the current page is a singular page, front page, or home page and not on a paged page, false otherwise.
+	 */
+	public function is_singular_or_front_page() {
+		// If we're on a singular page, or the front page or home page and not on a paged page, we can clear the cache for this URL.
+		return \is_singular() || ( ( \is_front_page() || \is_home() ) && ! \get_query_var( 'paged' ) );
 	}
 
 	/**
