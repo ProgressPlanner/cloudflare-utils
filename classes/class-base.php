@@ -16,6 +16,7 @@ class Base {
 	 */
 	public function __construct() {
 		\add_action( 'plugins_loaded', [ $this, 'init' ] );
+		new Abilities( $this );
 	}
 
 	/**
@@ -325,17 +326,6 @@ class Base {
 			]
 		);
 
-		// Log the request and response.
-		$log_entry = sprintf(
-			"[%s] Request: %s\nHeaders: %s\nBody: %s\nResponse: %s\n\n",
-			gmdate( 'Y-m-d H:i:s' ),
-			$url,
-			\wp_json_encode( $headers, JSON_UNESCAPED_SLASHES ),
-			$body,
-			\wp_remote_retrieve_body( $response )
-		);
-		file_put_contents( WP_CONTENT_DIR . '/cloudflare-api.log', $log_entry, FILE_APPEND ); // phpcs:ignore
-
 		// Check for errors in the response.
 		if ( \is_wp_error( $response ) ) {
 			error_log( 'Cloudflare cache purge failed: ' . $response->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -344,6 +334,11 @@ class Base {
 			$response_code = \wp_remote_retrieve_response_code( $response );
 			if ( $response_code !== 200 ) {
 				error_log( 'Cloudflare cache purge failed with response code: ' . $response_code ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				return $response_code;
+			}
+			$response_body = json_decode( \wp_remote_retrieve_body( $response ), true );
+			if ( ! is_array( $response_body ) || ( $response_body['success'] ?? false ) !== true ) {
+				return \__( 'Cloudflare did not confirm the cache purge.', 'pp-cf-utils' );
 			}
 			return $response_code;
 		}
