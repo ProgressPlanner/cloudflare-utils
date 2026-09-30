@@ -19,6 +19,7 @@ require_once dirname( __DIR__ ) . '/vendor/antecedent/patchwork/Patchwork.php';
 define( 'ABSPATH', rtrim( $pp_cf_utils_core, '/' ) . '/' );
 define( 'WPINC', 'wp-includes' );
 define( 'DAY_IN_SECONDS', 86400 );
+require_once ABSPATH . WPINC . '/compat.php';
 require_once ABSPATH . WPINC . '/plugin.php';
 require_once ABSPATH . WPINC . '/class-wp-error.php';
 require_once ABSPATH . WPINC . '/load.php';
