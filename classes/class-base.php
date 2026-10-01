@@ -16,6 +16,7 @@ class Base {
 	 */
 	public function __construct() {
 		\add_action( 'plugins_loaded', [ $this, 'init' ] );
+		new Abilities( $this );
 	}
 
 	/**
@@ -325,28 +326,49 @@ class Base {
 			]
 		);
 
-		// Log the request and response.
-		$log_entry = sprintf(
-			"[%s] Request: %s\nHeaders: %s\nBody: %s\nResponse: %s\n\n",
-			gmdate( 'Y-m-d H:i:s' ),
-			$url,
-			\wp_json_encode( $headers, JSON_UNESCAPED_SLASHES ),
-			$body,
-			\wp_remote_retrieve_body( $response )
-		);
-		file_put_contents( WP_CONTENT_DIR . '/cloudflare-api.log', $log_entry, FILE_APPEND ); // phpcs:ignore
-
 		// Check for errors in the response.
 		if ( \is_wp_error( $response ) ) {
 			error_log( 'Cloudflare cache purge failed: ' . $response->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return $response->get_error_message();
 		} else {
 			$response_code = \wp_remote_retrieve_response_code( $response );
+			$response_body = json_decode( \wp_remote_retrieve_body( $response ), true );
 			if ( $response_code !== 200 ) {
-				error_log( 'Cloudflare cache purge failed with response code: ' . $response_code ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Cloudflare cache purge failed with response code: ' . $response_code . $this->format_cloudflare_errors( $response_body ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				return $response_code;
+			}
+			if ( ! is_array( $response_body ) || ( $response_body['success'] ?? false ) !== true ) {
+				error_log( 'Cloudflare cache purge was not confirmed by Cloudflare' . $this->format_cloudflare_errors( $response_body ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				return \__( 'Cloudflare did not confirm the cache purge.', 'pp-cf-utils' );
 			}
 			return $response_code;
 		}
+	}
+
+	/**
+	 * Formats the errors array of a Cloudflare API response for the error log.
+	 *
+	 * Only the error codes and messages are used, these never contain credentials.
+	 *
+	 * @param mixed $response_body The decoded response body.
+	 *
+	 * @return string The formatted errors, prefixed with a separator, or an empty string.
+	 */
+	private function format_cloudflare_errors( $response_body ) {
+		if ( ! is_array( $response_body ) ) {
+			return ' (response body is not valid JSON)';
+		}
+		if ( empty( $response_body['errors'] ) || ! is_array( $response_body['errors'] ) ) {
+			return '';
+		}
+
+		$errors = [];
+		foreach ( $response_body['errors'] as $error ) {
+			if ( is_array( $error ) ) {
+				$errors[] = sprintf( '[%s] %s', $error['code'] ?? '?', $error['message'] ?? '' );
+			}
+		}
+		return $errors ? ' - ' . implode( '; ', $errors ) : '';
 	}
 
 	/**
