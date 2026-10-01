@@ -28,7 +28,7 @@ if ( is_wp_error( $result ) ) {
 }
 ```
 
-REST discovery and execution use WordPress authentication and the same administrator permission checks; an MCP transport is provided by a separate adapter, not by this plugin. See the [WordPress Abilities API reference](https://developer.wordpress.org/apis/abilities-api/php-reference/) and [Cloudflare purge API](https://developers.cloudflare.com/api/resources/cache/methods/purge/).
+REST discovery and execution use WordPress authentication and the same administrator permission checks; an MCP transport is provided by a separate adapter, not by this plugin. Because every ability is marked MCP-public, any MCP client authenticated as an administrator can also call `update-settings` and replace the zone ID or API token. See the [WordPress Abilities API reference](https://developer.wordpress.org/apis/abilities-api/php-reference/) and [Cloudflare purge API](https://developers.cloudflare.com/api/resources/cache/methods/purge/).
 
 ## Development checks
 
