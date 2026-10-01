@@ -64,6 +64,8 @@ class Abilities {
 			'get_settings',
 			null,
 			$settings_schema,
+			true,
+			false,
 			true
 		);
 		$this->register(
@@ -85,7 +87,9 @@ class Abilities {
 				'additionalProperties' => false,
 			],
 			$settings_schema,
-			false
+			false,
+			true,
+			true
 		);
 		$this->register(
 			'get-behavior',
@@ -113,6 +117,8 @@ class Abilities {
 				'required'             => [ 'public_cache_seconds', 'cache_tags', 'private_responses', 'redirects', 'automatic_purges', 'comments', 'credentials' ],
 				'additionalProperties' => false,
 			],
+			true,
+			false,
 			true
 		);
 
@@ -148,7 +154,8 @@ class Abilities {
 			],
 			$purge_schema,
 			false,
-			false
+			false,
+			true
 		);
 		$this->register(
 			'purge-all',
@@ -168,7 +175,8 @@ class Abilities {
 			],
 			$purge_schema,
 			false,
-			false
+			true,
+			true
 		);
 	}
 
@@ -181,12 +189,13 @@ class Abilities {
 	 * @param string                   $callback    Callback method.
 	 * @param array<string,mixed>|null $input       Input schema.
 	 * @param array<string,mixed>      $output      Output schema.
-	 * @param bool                     $read_only    Whether the ability only reads.
+	 * @param bool                     $read_only   Whether the ability only reads.
+	 * @param bool                     $destructive Whether the ability may cause hard to undo changes, so clients should confirm first.
 	 * @param bool                     $idempotent  Whether repeat execution has no additional effect.
 	 *
 	 * @return void
 	 */
-	private function register( $name, $label, $description, $callback, $input, $output, $read_only, $idempotent = true ) {
+	private function register( $name, $label, $description, $callback, $input, $output, $read_only, $destructive, $idempotent ) {
 		\wp_register_ability(
 			'cloudflare-utils/' . $name,
 			[
@@ -202,7 +211,7 @@ class Abilities {
 					'mcp'          => [ 'public' => true ],
 					'annotations'  => [
 						'readonly'    => $read_only,
-						'destructive' => ! $read_only,
+						'destructive' => $destructive,
 						'idempotent'  => $idempotent,
 					],
 				],

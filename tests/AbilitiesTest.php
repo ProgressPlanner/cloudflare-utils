@@ -145,6 +145,18 @@ class AbilitiesTest extends PHPUnit\Framework\TestCase {
 			$this->assertFalse( $ability->check_permissions() );
 			$this->admin = true;
 		}
+		// Annotation order: readonly, destructive, idempotent.
+		$expected_annotations = [
+			'get-settings'    => [ true, false, true ],
+			'update-settings' => [ false, true, true ],
+			'get-behavior'    => [ true, false, true ],
+			'purge-url'       => [ false, false, true ],
+			'purge-all'       => [ false, true, true ],
+		];
+		foreach ( $expected_annotations as $name => $expected ) {
+			$annotations = wp_get_ability( 'cloudflare-utils/' . $name )->get_meta_item( 'annotations' );
+			$this->assertSame( $expected, [ $annotations['readonly'], $annotations['destructive'], $annotations['idempotent'] ], $name );
+		}
 		$this->admin = false;
 		$result      = wp_get_ability( 'cloudflare-utils/purge-all' )->execute( [ 'confirm' => true ] );
 		$this->assertSame( 'ability_invalid_permissions', $result->get_error_code() );
