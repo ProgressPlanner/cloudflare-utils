@@ -213,6 +213,38 @@ class AbilitiesTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Check Cloudflare's error details reach the error log without credentials.
+	 *
+	 * @return void
+	 */
+	public function test_purge_errors_are_logged(): void {
+		$all      = wp_get_ability( 'cloudflare-utils/purge-all' );
+		$log_file = (string) tempnam( sys_get_temp_dir(), 'cf-utils-log' );
+		$previous = ini_set( 'error_log', $log_file ); // phpcs:ignore WordPress.PHP.IniSet.Risky
+
+		$this->response = [
+			'response' => [ 'code' => 403 ],
+			'body'     => '{"success":false,"errors":[{"code":10000,"message":"Authentication error"}]}',
+		];
+		$all->execute( [ 'confirm' => true ] );
+		$this->response['response']['code'] = 200;
+		$this->response['body']             = '{"success":false,"errors":[{"code":1012,"message":"Request must contain one of purge_everything or files"}]}';
+		$all->execute( [ 'confirm' => true ] );
+		$this->response['body'] = 'invalid';
+		$all->execute( [ 'confirm' => true ] );
+
+		ini_set( 'error_log', (string) $previous ); // phpcs:ignore WordPress.PHP.IniSet.Risky
+		$log = (string) file_get_contents( $log_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		unlink( $log_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+
+		$this->assertStringContainsString( 'response code: 403 - [10000] Authentication error', $log );
+		$this->assertStringContainsString( 'not confirmed by Cloudflare - [1012] Request must contain', $log );
+		$this->assertStringContainsString( 'not confirmed by Cloudflare (response body is not valid JSON)', $log );
+		$this->assertStringNotContainsString( 'test-secret', $log );
+		$this->assertStringNotContainsString( 'admin@example.com', $log );
+	}
+
+	/**
 	 * Check effective constant precedence and reject a locked update atomically.
 	 *
 	 * @runInSeparateProcess
