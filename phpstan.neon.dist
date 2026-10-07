@@ -4,6 +4,8 @@ parameters:
   paths:
     - ./cloudflare-utils.php
     - ./classes
+  scanFiles:
+    - ./tests/phpstan-stubs.php
   bootstrapFiles:
     - ./cloudflare-utils.php
   ignoreErrors:

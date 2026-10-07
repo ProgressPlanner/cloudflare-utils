@@ -1,0 +1,53 @@
+name: Abilities tests
+
+on:
+  # Run on pushes to select branches and on all pull requests.
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/[0-9]+.[0-9]+*'
+      - 'hotfix/[0-9]+.[0-9]+*'
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit.xml.dist'
+      - '.github/workflows/tests.yml'
+  pull_request:
+  workflow_dispatch:
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  abilities:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        wordpress: ['6.9', 'latest']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - uses: ramsey/composer-install@v2
+      - name: Download WordPress core libraries
+        env:
+          WORDPRESS_VERSION: ${{ matrix.wordpress }}
+        run: |
+          if [ "$WORDPRESS_VERSION" = "latest" ]; then
+            archive="latest.tar.gz"
+          else
+            archive="wordpress-${WORDPRESS_VERSION}.tar.gz"
+          fi
+          curl --fail --silent --show-error --location "https://wordpress.org/${archive}" --output "$RUNNER_TEMP/wordpress.tar.gz"
+          tar -xzf "$RUNNER_TEMP/wordpress.tar.gz" -C "$RUNNER_TEMP"
+      - name: Test abilities against WordPress
+        env:
+          WP_CORE_DIR: ${{ runner.temp }}/wordpress
+        run: composer test
