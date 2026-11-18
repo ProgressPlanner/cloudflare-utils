@@ -1,0 +1,16 @@
+/.git
+/.github
+/.claude
+/.distignore
+/.editorconfig
+/.gitignore
+/.DS_Store
+/tests
+/vendor
+/node_modules
+/README.md
+/composer.json
+/composer.lock
+/phpcs.xml.dist
+/phpstan.neon.dist
+/phpunit.xml.dist
