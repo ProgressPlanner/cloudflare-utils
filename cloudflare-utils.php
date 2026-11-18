@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cloudflare utils by Progress Planner
  * Description: Make clearing and setting Cloudflare cache easier.
- * Version: 1.0
+ * Version: 1.1.0
  * Author: Team Progress Planner
  * Author URI: https://progressplanner.com/
  * Textdomain: pp-cf-utils
