@@ -23,6 +23,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   abilities:
     runs-on: ubuntu-latest
@@ -30,12 +33,12 @@ jobs:
       matrix:
         wordpress: ['6.9', 'latest']
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '8.2'
           coverage: none
-      - uses: ramsey/composer-install@v2
+      - uses: ramsey/composer-install@1919f6c305aea6ab10e6181a8ddf72317ad77e0e # 2.3.1
       - name: Download WordPress core libraries
         env:
           WORDPRESS_VERSION: ${{ matrix.wordpress }}
