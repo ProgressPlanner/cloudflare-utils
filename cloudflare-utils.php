@@ -6,6 +6,8 @@
  * Author: Team Progress Planner
  * Author URI: https://progressplanner.com/
  * Textdomain: pp-cf-utils
+ * License: GPL-3.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package PP_Cloudflare_Utils
  */
